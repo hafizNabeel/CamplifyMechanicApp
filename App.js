@@ -47,21 +47,23 @@ export default class App extends React.Component {
   }
 
   // ----------------- SwitchModule Function Provides Data Linking and Navigation between Parent - Child and Sub Childs ---------
-  switchmodule(module,name,email) {
+  switchmodule(module,name,email,userId) {
     console.log("switcher", module);
     if (module == "homepage") {
       this.setState({
         isregistration: false,
         userType: "Customer",
         name:name,
-        email:email
+        email:email,
+        userId:userId
       });
     } else if (module == "mechanichomepage") {
       this.setState({
         isregistration: false,
         userType: "Mechanic",
         name:name,
-        email:email
+        email:email,
+        userId:userId
       })
     } else {
       this.setState({

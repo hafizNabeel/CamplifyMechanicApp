@@ -36,7 +36,7 @@ class Login extends Component {
     var parentprops=this.props;
     axios({
       method: "post",
-      url: "http://13.236.175.70:443/api/Authenticate/Login",
+      url: "http://adeelahmad01-001-site1.etempurl.com/api/Authenticate/Login",
       headers: {
         Accept: "application/json, text/plain",
         "Content-Type": "application/json;charset=UTF-8",
@@ -52,12 +52,13 @@ class Login extends Component {
       var userTypedecoded=decoded['http://schemas.microsoft.com/ws/2008/06/identity/claims/role']
       var name=decoded['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name']
       var email=decoded['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress'];
+      var userId=decoded['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier'];
       console.log("decoded token",decoded);
       if (response.status == 200) {
         console.log("Login success");
-        this.props.snackbar("Login Success","green")
+        // this.props.snackbar("Login Success","green")
         userTypedecoded=="Customer"?
-        this.props.switchscreen("homepage",name,email):this.props.switchscreen("mechanichomepage",name,email);
+        this.props.switchscreen("homepage",name,email,userId):this.props.switchscreen("mechanichomepage",name,email,userId);
       }else this.props.snackbar("Email or Password not correct","red");
       try {
         await AsyncStorage.setItem("storage_Key", response.data.token);
@@ -65,7 +66,7 @@ class Login extends Component {
       
       }
     }).catch((e)=>{
-      console.log("login error")
+      console.log("login error",e)
       this.setState({
         spinner:false
       })
@@ -89,8 +90,8 @@ class Login extends Component {
             <Spinner
           visible={this.state.spinner}
           color="#003171"
-          textContent={'Loading...'}
-          textStyle={{color:"#003171"}}
+          textContent={'Authenticating...'}
+          textStyle={{color:"#003171",fontWeight:'normal'}}
         />
 
 

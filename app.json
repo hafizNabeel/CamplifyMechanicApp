@@ -3,11 +3,11 @@
     "name": "Camplify Vehicle Repair App",
     "slug": "ReactMobile",
     "owner":"hafiznabeel",
-    "version": "1.0.2",
+    "version": "1.0.3",
     "orientation": "portrait",
     "icon": "./assets/camplify.png",
     "splash": {
-      "image": "./assets/splash.png",
+      "image": "./assets/camplifyblu.png",
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
@@ -20,10 +20,10 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.nabeel.camplify",
-      "buildNumber": "1.0.2"
+      "buildNumber": "1.0.3"
     },
     "web": {
-      "favicon": "./assets/favicon.png"
+      "favicon": "./assets/camplify.png"
     },
     "android": {
       "package": "com.nabeel.camplify",

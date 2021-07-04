@@ -58,6 +58,7 @@ export default function StepTwo({ navigation }) {
       </View>
       <View style={styles.bottomView}>
         <TouchableOpacity
+        disabled={true}
           style={{
             flex: 1,
             alignItems: "center",
@@ -66,8 +67,8 @@ export default function StepTwo({ navigation }) {
           onPress={() => navigation.navigate("Checklist")}
         >
           <View>
-            <Text style={{ marginRight: 15, fontSize: 20, color: "white" }}>
-              <Icon name="chevron-left" size={15} color="white" /> Prev
+            <Text style={{ marginRight: 15, fontSize: 20, color: "grey" }}>
+              {/* <Icon name="chevron-left" size={15} color="grey" /> Prev */}
             </Text>
           </View>
         </TouchableOpacity>

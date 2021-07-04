@@ -13,8 +13,8 @@ import {
 import { Ionicons } from "@expo/vector-icons";
 
 var radio_props = [
-  { label: 'Customer', value: 0 },
-  { label: 'Mechanic', value: 1 }
+  { label: 'Customer   ', value: 0 },
+  { label: 'Mechanic   ', value: 1 }
 ];
 class Signup extends Component {
   constructor(props) {
@@ -44,13 +44,13 @@ class Signup extends Component {
         Email: this.state.email,
         Phone: this.state.phone,
         Address: this.state.address,
-        ServiceType: this.state.serviceType,
+        ServiceType: "NEW",
         Password: this.state.password,
         userType: this.state.userType
       };
       axios({
         method: "post",
-        url: "http://13.236.175.70:443/api/Authenticate/register",
+        url: "http://adeelahmad01-001-site1.etempurl.com/api/Authenticate/register",
         headers: {
           Accept: "application/json, text/plain",
           "Content-Type": "application/json;charset=UTF-8",
@@ -125,12 +125,12 @@ class Signup extends Component {
             onChangeText={(text) => this.setState({ address: text })}
             value={this.state.address}
           />
-          <TextInput
+          {/* <TextInput
             style={styles.inputText}
             placeholder="Service type"
             onChangeText={(text) => this.setState({ serviceType: text })}
             value={this.state.serviceType}
-          />
+          /> */}
           <TextInput
             style={styles.inputTextPass}
             secureTextEntry={true}

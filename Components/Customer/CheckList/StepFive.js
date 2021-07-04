@@ -23,7 +23,7 @@ const Header = ({ name, openDrawer }) => (
 );
 // ----------------------- Input(Date) <=============> Output(Date)->Step Six
 export default function StepFive({ navigation }) {
-  const [date, setDate] = useState(new Date(1598051730000));
+  const [date, setDate] = useState(new Date());
   const [mode, setMode] = useState("date");
   const [show, setShow] = useState(false);
   const ScreenOne = navigation.getParam("ScreenOne");
@@ -44,6 +44,7 @@ export default function StepFive({ navigation }) {
   const showDatepicker = () => {
     
     showMode("date");
+    setShow(true);
   };
 
   const showTimepicker = () => {
@@ -59,31 +60,51 @@ export default function StepFive({ navigation }) {
         <Text style={{ color: "#003171", fontWeight: "bold", fontSize: 30 }}>
           5. What date(s) did the demage occur?
         </Text>
-        <View style={{ marginTop: "15%" ,justifyContent:'flex-start',alignItems:'flex-start'}}>
-          <Button color="#003171" onPress={showDatepicker} title="Enter Date" />
-       
-        </View>
+    {
+      Platform.OS!="ios"?
+      <View style={{ marginTop: "15%" ,justifyContent:'center',alignItems:'center'}}>
+          {/* <Button color="#003171" onPress={showDatepicker} title="Enter Date" /> */}
+          <TouchableOpacity
+          onPress={showDatepicker}
+          style={{backgroundColor:"#003171",borderRadius:3,height:40,alignItems:'center',  shadowOffset: { width: 5, height: 5, },
+          shadowColor: '#003171',
+          shadowOpacity: 0.3,}}
+          >
+            
+          <Text style={{color:"white",fontSize:20,margin:6,alignSelf:'center',fontWeight:'400',}}>{date.toDateString()}</Text>
+          </TouchableOpacity>
+        </View>:null
+         } 
         {/* <TouchableOpacity>
           <Text style={styles.forgot}>Add another</Text>
         </TouchableOpacity> */}
         <View style={{justifyContent:'center',alignContent:'center'}}>
-        {show && (
+        {Platform.OS=="ios"?<DateTimePicker
+          testID="dateTimePicker"
+          value={date}
+          mode={"date"}
+          is24Hour={true}
+          display="default"
+          onChange={onChange}
+          style={{marginTop:'5%',color:"#003171"}}
+        />: show? 
         
         <DateTimePicker
           testID="dateTimePicker"
           value={date}
-          mode={mode}
+          mode={"date"}
           is24Hour={true}
           display="default"
           onChange={onChange}
           style={{marginTop:'5%',color:"#003171"}}
         />
-      )}
+      :null}
         </View>
       </View>
 
       <View style={styles.bottomView}>
         <TouchableOpacity
+        disabled={true}
           style={{
             flex: 1,
             alignItems: "center",
@@ -93,7 +114,7 @@ export default function StepFive({ navigation }) {
         >
           <View>
             <Text style={{ marginRight: 15, fontSize: 20, color: "white" }}>
-              <Icon name="chevron-left" size={15} color="white" /> Prev
+              {/* <Icon name="chevron-left" size={15} color="white" /> Prev */}
             </Text>
           </View>
         </TouchableOpacity>

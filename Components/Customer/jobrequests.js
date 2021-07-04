@@ -2,6 +2,7 @@ import React, { useState } from 'react'
 
 import { Icon } from 'react-native-elements'
 import { Ionicons } from "@expo/vector-icons";
+import Spinner from 'react-native-loading-spinner-overlay';
 import {
     StyleSheet,
     Text,
@@ -9,12 +10,16 @@ import {
     TextInput,
     TouchableOpacity,
     Button,
+    RefreshControl,
+    TouchableHighlight, Image
 } from "react-native";
 import { Collapse, CollapseHeader, CollapseBody } from "accordion-collapse-react-native";
 import Dialog from "react-native-dialog";
 import { ScrollView } from 'react-native';
-import { FloatingAction } from "react-native-floating-action";
 
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import SnackBar from 'react-native-snackbar-component'
+import axios from "axios";
 const Header = ({ name, openDrawer }) => (
     <View style={styles.header}>
         <TouchableOpacity onPress={() => openDrawer()}>
@@ -24,143 +29,376 @@ const Header = ({ name, openDrawer }) => (
         <Text style={{ width: 50 }}></Text>
     </View>
 );
-export default function JobRequests({ navigation }) {
-    const [dialog, setDialog] = useState(false);
-    const [dialogTitle, setDialogTitle] = useState("");
-    const [dialogmsg, setDialogMsg] = useState("");
+export default class JobRequests extends React.Component {
+    constructor(props) {
+        super(props)
+        this.state = {
+            dialog: false,
+            dialogTitle: "",
+            dialogmsg: "",
+            customerJobs: [],
+            spinner: false,
+            checklist: "",
+            statustype: "",
+            snackbar: false,
+            snackbarmsg: "",
+            snackbarstatus: "",
+            refresh: false
+        }
+        this.incidentList = this.incidentList.bind(this);
+        this.refreshData = this.refreshData.bind(this);
+    }
+
+    async componentDidMount() {
+        try {
+            const value = await AsyncStorage.getItem(String(this.props.screenProps.userId) + "/" + "customerJobSummary");
+            // console.log("chached checklist", JSON.parse(value));
+            if (value != null) {
+                this.setState({
+                    customerJobs: JSON.parse(value)
+                })
+            } else this.incidentList();
+        } catch (error) {
+
+        }
+
+    }
+    async incidentList() {
+
+        console.log("incident list props", this.props.screenProps.userId)
+        this.setState({
+            refresh: true
+        })
+        // const value = await AsyncStorage.getItem("storage_Key");
+        // console.log("job summary retriving session token", value);
+        axios({
+            method: "post",
+            url: "http://adeelahmad01-001-site1.etempurl.com/api/Job/incidents_listBy_customer?customerId=" + this.props.screenProps.userId,
+            headers: {
+                Accept: "application/json, text/plain",
+                "Content-Type": "application/json;charset=UTF-8",
+                //   Authorization: `Bearer ${value}`,
+            },
+            // data: {customerId:props.screenProps.userId},
+        }).then(async (response) => {
+
+            console.log(response)
+            try {
+
+                await AsyncStorage.setItem(String(this.props.screenProps.userId) + "/" + "customerJobSummary", JSON.stringify(response.data));
+            } catch (error) {
+
+            }
+            this.setState({
+                customerJobs: response.data,
+                refresh: false,
+            })
+        }).catch((e) => {
+            this.setState({
+                refresh: false,
+                snackbar: true,
+                snackbarmsg: "Something Went Wrong",
+                snackbarstatus: "red"
+            })
+            console.log("job summary error", e);
+        })
+    }
+
+    refreshData() {
+        this.incidentList()
+    }
+
+    assginjob(jobid, decision) {
+        this.setState({
+            spinner: true
+        })
+
+        console.log("assign job params", jobid, decision)
+        axios({
+            method: "post",
+            url: "http://adeelahmad01-001-site1.etempurl.com/api/Job/job_decision_by_cus?jobId=" + jobid + "&decision=" + decision,
+            headers: {
+                Accept: "application/json, text/plain",
+                "Content-Type": "application/json;charset=UTF-8",
+                //   Authorization: `Bearer ${value}`,
+            }
+        }).then((response) => {
+            console.log("assign job by customer", response)
+            this.setState({
+                spinner: false, snackbar: true,
+                snackbarmsg: "Success !",
+                snackbarstatus: 'green'
+            })
+            this.incidentList();
+        }).catch((e) => {
+            console.log("assign job by customer error", e)
+            this.setState({
+                spinner: false,
+                snackbar: true,
+                snackbarmsg: "Something Went Wrong",
+                snackbarstatus: 'red'
+            })
+        })
+    }
     // ------- Show Quote Function Takes Data Array  and return components to render
     //  -- Currently Static Data is used  ( not configured for data array yet  ) -----------------
-    const showquote = () => {
+
+    jobs = (status) => {
         return (
+
             <View style={{
-                marginHorizontal: 10, shadowOffset: { width: 3, height: 3, },
+                shadowOffset: { width: 5, height: 5, },
                 shadowColor: 'grey',
                 shadowOpacity: 0.4,
             }}>
-                <Collapse>
-                    <CollapseHeader>
-                        <View style={{ flexDirection: 'row', height: 40, marginTop: '5%', justifyContent: 'space-between' }}>
-                            <Text style={{ fontSize: 20 }}>Quote : $ 50 </Text>
-                            <Icon
-                                name='keyboard-arrow-down'
-                                color='#00aced' />
-                        </View>
-                    </CollapseHeader>
-                    <CollapseBody>
-                        <View style={{ flexDirection: 'row' }}>
-                            <Text style={{ fontSize: 17 }}>Date : 20 Sep 2021 </Text>
-                        </View>
-                        <View style={{ height: 0.5, backgroundColor: 'grey', width: "100%", marginVertical: 5 }}></View>
-                        <View style={{ flexDirection: 'row' }}>
-                            <Text style={{ fontSize: 17, flexWrap: 'wrap', flex: 1 }}>Message : I'v 5 years of experiance replacing car doors . I'm the best fit for this job I would like to do this Job</Text>
-                        </View>
-                        <View style={{ height: 0.5, backgroundColor: 'grey', width: "100%", marginTop: 5 }}></View>
-                        <View style={{ height: 50, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-evenly', marginVertical: 2, marginHorizontal: 5 }}>
-                            <Text style={{ width: "30%", fontSize: 17 }}>Name</Text>
-                            <View style={{ backgroundColor: 'grey', width: 0.7, height: 40, marginRight: 20 }}></View>
-                            <Text style={{ width: "70%", fontSize: 17 }}>Walter White</Text>
-                        </View>
-                        <View style={{ height: 0.5, backgroundColor: 'grey', width: "100%" }}></View>
-
-                        <View style={{ height: 50, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-evenly', marginVertical: 2, marginHorizontal: 5 }}>
-                            <Text style={{ width: "30%", fontSize: 17 }}>Email</Text>
-                            <View style={{ backgroundColor: 'grey', width: 0.7, height: 40, marginRight: 20 }}></View>
-                            <Text style={{ width: "70%", fontSize: 17 }}>walterwhite@camplify.com</Text>
-                        </View>
-                        <View style={{ height: 0.5, backgroundColor: 'grey', width: "100%" }}></View>
-                        <View style={{ height: 50, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-evenly', marginVertical: 2, marginHorizontal: 5 }}>
-                            <Text style={{ width: "30%", fontSize: 17 }}>Job</Text>
-                            <View style={{ backgroundColor: 'grey', width: 0.7, height: 40, marginRight: 20 }}></View>
-                            <View style={{ width: "70%", }}>
-
-                                <TouchableOpacity
-                                    onPress={() => {
-                                        setDialogTitle("Checklist")
-                                        setDialogMsg("This function is in Development");
-                                        setDialog(true);
-
-                                    }}
-                                >
-                                    <Text style={{ fontSize: 17, color: 'blue', fontWeight: 'bold' }}>Checklist</Text>
-                                </TouchableOpacity>
-                            </View>
-                        </View>
-                        <View style={{ height: 0.5, backgroundColor: 'grey', width: "100%" }}></View>
-                        <View style={{ flexDirection: 'row', justifyContent: 'flex-end', alignItems: 'center', alignContent: 'center', marginVertical: 10 }}>
-                            <View style={{ alignItems: 'center' }}>
-                                <TouchableOpacity onPress={() => {
-                                    setDialog(true);
-                                    setDialogTitle("Decline Request")
-                                    setDialogMsg("This Function is in Development")
-                                }}>
+                {
+                    this.state.customerJobs != "" ? this.state.customerJobs.map((element, index) => {
+                        if (element.jobs != null && element.jobs.status == "REQUEST") {
 
 
-                                    <Text style={{ color: 'red', fontSize: 17 }}>Decline</Text>
-                                </TouchableOpacity>
-                            </View>
-                            <View style={{ backgroundColor: 'grey', width: 0.7, height: 40, marginHorizontal: 10 }}></View>
-                            <View>
-                                <TouchableOpacity onPress={() => {
-                                    setDialog(true);
-                                    setDialogTitle("Assign Job")
-                                    setDialogMsg("This Function is in Development")
-                                }}>
+                            return (
+                                <View key={index}>
 
 
-                                    <Text style={{ color: 'green', fontSize: 20, fontWeight: '600' }}>Assign</Text>
-                                </TouchableOpacity>
-                            </View>
-                        </View>
+                                    <Collapse>
+                                        <CollapseHeader>
+                                            <View style={{ flexDirection: 'row', height: 40, marginTop: '5%', justifyContent: 'space-between' }}>
+                                                <Image
+                                                    source={require("../../assets/bell.png")}
+                                                    style={{ width: "10%", height: "50%" }}
+                                                    resizeMode="contain"
+                                                ></Image>
+                                                <Text style={{ fontSize: 16, color: element.jobs.status == "Completed" ? 'green' : '#003171' }}>{element.jobs.status=="REQUEST"?"Request":element.jobs.status}</Text>
+                                                <Text style={{ fontSize: 16 ,color:"#003171" }}>From {element.mechanicInfo.fullName} </Text>
+                                                <Icon
+                                                    name='keyboard-arrow-down'
+                                                    color='#00aced' />
+                                            </View>
+                                        </CollapseHeader>
+                                        <CollapseBody>
+                                            <View style={{ flexDirection: 'row' }}>
+                                                <Text style={{ fontSize: 17 }}>Created : {new Date(element.jobs.date).toUTCString()} </Text>
+                                            </View>
+                                            <View style={{ height: 0.5, backgroundColor: 'grey', width: "100%", marginVertical: 5 }}></View>
+                                            <View style={{ flexDirection: 'row' }}>
+                                                <Text style={{ fontSize: 17, flexWrap: 'wrap', flex: 1 }}>Message : {element.jobs.message}</Text>
+                                            </View>
+                                            <View style={{ height: 0.5, backgroundColor: 'grey', width: "100%", marginTop: 5 }}></View>
+                                            <View style={{ height: 50, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-evenly', marginVertical: 2, marginHorizontal: 5 }}>
+                                                <Text style={{ width: "30%", fontSize: 17 }}>Price</Text>
+                                                <View style={{ backgroundColor: 'grey', width: 0.7, height: 40, marginRight: 20 }}></View>
+                                                <Text style={{ width: "70%", fontSize: 17 }}>{element.jobs.quotation}</Text>
+                                            </View>
+                                            <View style={{ height: 0.5, backgroundColor: 'grey', width: "100%" }}></View>
 
-                    </CollapseBody>
-                </Collapse>
-                <View style={{ height: 0.8, backgroundColor: 'grey', width: "100%" }}></View>
+                                            <View style={{ height: 50, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-evenly', marginVertical: 2, marginHorizontal: 5 }}>
+                                                <Text style={{ width: "30%", fontSize: 17 }}>Date</Text>
+                                                <View style={{ backgroundColor: 'grey', width: 0.7, height: 40, marginRight: 20 }}></View>
+                                                <Text style={{ width: "70%", fontSize: 17 }}>{new Date(element.jobs.quotation_DATE).toDateString()}</Text>
+                                            </View>
+                                            <View style={{ height: 0.5, backgroundColor: 'grey', width: "100%" }}></View>
+                                            <View style={{ height: 50, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-evenly', marginVertical: 2, marginHorizontal: 5 }}>
+                                                <Text style={{ width: "30%", fontSize: 17 }}>Mechanic</Text>
+                                                <View style={{ backgroundColor: 'grey', width: 0.7, height: 40, marginRight: 20 }}></View>
+                                                <Text style={{ width: "70%", fontSize: 17 }}>{element.mechanicInfo.fullName}</Text>
+                                            </View>
+                                            <View style={{ height: 0.5, backgroundColor: 'grey', width: "100%" }}></View>
+                                            <View style={{ height: 50, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-evenly', marginVertical: 2, marginHorizontal: 5 }}>
+                                                <Text style={{ width: "30%", fontSize: 17 }}>Email</Text>
+                                                <View style={{ backgroundColor: 'grey', width: 0.7, height: 40, marginRight: 20 }}></View>
+                                                <Text style={{ width: "70%", fontSize: 17 }}>{element.mechanicInfo.email}</Text>
+                                            </View>
+                                            <View style={{ height: 0.5, backgroundColor: 'grey', width: "100%" }}></View>
+                                            <View style={{ height: 50, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-evenly', marginVertical: 2, marginHorizontal: 5 }}>
+                                                <Text style={{ width: "30%", fontSize: 17 }}>Job</Text>
+                                                <View style={{ backgroundColor: 'grey', width: 0.7, height: 40, marginRight: 20 }}></View>
+                                                <View style={{ width: element.jobs.status == "REQUEST" ? "35%" : "70%", }}>
+
+                                                    <TouchableOpacity
+                                                        onPress={() => {
+                                                            this.setState({
+                                                                dialogTitle: "Checklist " + element.jobs.checklistId,                                                     
+                                                                dialog: true,
+                                                                checklist: element.checkLists,
+                                                                statustype: element.jobs.status
+                                                            })
+
+                                                        }}
+                                                    >
+                                                        <Text style={{ fontSize: 17, color: 'blue', fontWeight: 'bold' }}>Checklist</Text>
+                                                    </TouchableOpacity>
+                                                </View>
+                                                {
+                                                    element.jobs.status == "REQUEST" ? <View style={{ width: "35%", }}>
+
+                                                        <TouchableOpacity
+                                                            onPress={() => {
+
+                                                                this.assginjob(element.jobs.jobId, "ASSIGN")
+
+                                                            }}
+                                                        >
+                                                            <Text style={{ fontSize: 15, color: 'green', fontWeight: 'bold' }}>Assign</Text>
+                                                        </TouchableOpacity>
+                                                    </View> : null
+                                                }
+                                            </View>
+                                            <View style={{ height: 0.5, backgroundColor: 'grey', width: "100%" }}></View>
+
+
+                                        </CollapseBody>
+                                    </Collapse>
+                                    <View style={{ height: 0.5, backgroundColor: 'grey', width: "100%" }}></View>
+                                </View>
+                            )
+                        }
+                    }) : <Text style={{ color: 'grey', alignSelf: 'center' }}>No Jobs Found</Text>
+                }
             </View>
         )
     }
-    return (
-        <View style={{ flex: 1, marginHorizontal: 10, marginTop: '10%' }}>
-            <Header name="Mechanic Requests" openDrawer={navigation.openDrawer} />
+    render() {
 
-            {/* Dont have to call ShowQuote Multiple Times once Data Array becomes Available */}
-            <ScrollView>
-                {
-                    showquote()
+        let categoryarr=[];
+        this.state.checklist.categories!=null?this.state.checklist.categories.map((element,index)=>{
+        categoryarr.push(element.categoryName+" ")
+        }):null
+        return (
+            <View style={{ flex: 1, marginHorizontal: 10, marginTop: '10%' }}>
+                <Header name="Job Requests" openDrawer={this.props.navigation.openDrawer} />
+                <Spinner
+                    color="blue"
+                    visible={this.state.spinner}
+                    textContent={'Updating..'}
+                    textStyle={{ color: "blue" }}
 
-                }{
-                    showquote()
-                }
-                {
-                    showquote()
+                />
+                <ScrollView
+                    refreshControl={
+                        <RefreshControl
+                            color="gold"
+                            onRefresh={this.refreshData}
+                            refreshing={this.state.refresh}
+                        />}
+                >
+                    {
+                        !this.state.refresh ? <Image
+                            source={require("../../assets/refresh.png")}
+                            style={{ width: "100%", height: 20, marginVertical: 5 }}
+                            resizeMode="contain"
+                        ></Image> : null
+                    }
+                    {
+                        this.jobs("Completed")
+                        // this.showquote()
+                    }
+                    {/* {
+                        this.jobs("Assgined")
+                    }
+                    {
+                        this.jobs("Completed")
+                    }
+                    {
+                        this.jobs("Assgined")
+                    } */}
+                </ScrollView>
+                <Dialog.Container visible={this.state.dialog}>
+                    <Dialog.Title>{this.state.dialogTitle}</Dialog.Title>
+                    <Dialog.Description>
+                        <View style={{ height: '80%', marginHorizontal: 10, width: "90%", flexDirection: 'column' }}>
+                            <View style={{ flexWrap: 'wrap', flexDirection: 'row', justifyContent: 'space-evenly', alignItems: 'center', marginTop: 5, marginHorizontal: 5 }}>
+                                <Text style={{ fontWeight: '700', fontSize: 13, width: "60%" }}>Damage Description: </Text>
+                                <Text style={{ fontSize: 12, flexWrap: 'wrap', flex: 1,alignSelf:'center',width:"50%" }}>{this.state.checklist.demageDesc}</Text>
+                            </View>
+                        <View style={{ height: 0.5, backgroundColor: 'grey', width: "100%" }}></View>
+                        <View style={{ height:45,flexWrap: 'wrap', flexDirection: 'row', justifyContent:'flex-start', alignItems: 'center', marginTop: 5, marginHorizontal: 5 }}>
+                          <Text style={{ fontWeight: '700', fontSize: 13 ,width:"40%"}}>Category :</Text>
+                          <Text style={{ fontSize: 12, flexWrap: 'wrap', flex: 1,width:"80%" }}>{categoryarr}</Text>
+                        </View>
+                        <View style={{ height: 0.5, backgroundColor: 'grey', width: "100%" }}></View>
+                         <View style={{ height: 280, flexDirection: 'column', alignItems: 'flex-start', marginTop: 5, marginHorizontal: 5 }}>
+                                <Text style={{ fontSize: 13, fontWeight: '500' }}>Photos :</Text>
 
-                }{
-                    showquote()
-                }
-            </ScrollView>
-            <Dialog.Container visible={dialog}>
-                <Dialog.Title style={{ color: 'gold' }}>{dialogTitle}</Dialog.Title>
-                <Dialog.Description>{dialogmsg}</Dialog.Description>
-                <Dialog.Button onPress={() => {
-                    setDialog(false)
-                }} label="Cancel" />
+                                <ScrollView horizontal={true} style={{ marginTop: 10 }}>
+                                    <View style={{ flexDirection: 'row', justifyContent: 'space-evenly' }}>
+                                        {
+                                            this.state.checklist.photo != "" && this.state.checklist.photo != null ? this.state.checklist.photo.map((imgdata, index) => {
+                                                return <TouchableHighlight key={index} onPress={() => {
+                                                    this.setState({
+                                                        showimage: true,
+                                                        showimgdata: imgdata.photos
+                                                    })
+                                                }}>
+                                                    <View >
 
-            </Dialog.Container>
-            <FloatingAction
-                floatingIcon={require("../../assets/question.png")}
-                iconWidth={30}
-                iconHeight={50}
-                buttonSize={60}
-                showBackground={false}
-                onPressMain={() => {
-                    setDialogTitle("In Construction ")
-                    setDialogMsg("Dummy Data is used in this screen . ")
-                    setDialog(true);
-                }}
-            />
-        </View>
+                                                        <Image key={index} source={{ uri: String(imgdata.photos).includes("data:image/jpeg;base64,") ? imgdata.photos : "data:image/jpeg;base64," + imgdata.photos }}
+                                                            style={{ width: 150, height: 130, resizeMode: 'cover', borderWidth: 1, borderColor: 'red' }}
+                                                        /></View>
+                                                </TouchableHighlight>
 
-    )
+                                            }) : <Text>No Image Found</Text>
+                                        }
 
+                                    </View>
+                                </ScrollView>
+                                <View style={{ height: 0.5, backgroundColor: 'grey', width: "100%" }}></View>
+
+                                <View style={{ flexDirection: 'row', justifyContent: 'flex-start', alignItems: 'center', marginVertical: 2 }}>
+                                    <Text style={{ fontSize: 13, width: "30%" }}>Posted by </Text>
+                                    <View style={{ backgroundColor: 'grey', width: 0.7, height: 25 }}></View>
+                                    <Text style={{ fontSize: 13, fontWeight: '700', width: "70%" }}>   {this.state.checklist.email}</Text>
+
+
+                                </View>
+                                <View style={{ height: 0.5, backgroundColor: 'grey', width: "100%" }}></View>
+                                <View style={{ flexDirection: 'row', justifyContent: 'flex-start', alignItems: 'center', marginVertical: 2 }} >
+
+                                    <Text style={{ fontSize: 13, width: "30%" }}>Damage Date : </Text>
+                                    <View style={{ backgroundColor: 'grey', width: 0.7, height: 25, marginRight: 20 }}></View>
+                                    <Text style={{ fontSize: 13, fontWeight: '700', width: "70%" }}>{new Date(this.state.checklist.demageOccurDate).toDateString()}</Text>
+                                </View>
+                               
+                                <View style={{ height: 0.5, backgroundColor: 'grey', width: "100%" }}></View>
+                                {
+                                    this.state.statustype == "Assigned" ?
+
+                                        <View style={{
+                                            flexDirection: 'row', justifyContent: 'space-between', height: 40, width: "95%", alignItems: 'center', marginBottom: "3%", shadowOffset: { width: 5, height: 5, },
+                                            shadowColor: '#003171',
+                                            shadowOpacity: 0.2,
+                                        }}>
+                                            <Text></Text>
+                                            <TouchableOpacity onPress={() => {
+                                                this.setState({
+                                                    dialog: false,
+                                                    // checklistId:this.state.checklist.checklistId
+
+                                                })
+                                                console.log("send quote");
+                                            }}>
+
+                                                <Text style={{ color: 'red', fontSize: 20, fontWeight: '600' }}>Cancel Quote</Text>
+                                            </TouchableOpacity>
+                                        </View>
+                                        : null}
+                            </View>
+                     
+                        </View>
+
+                    </Dialog.Description>
+                  
+                    <Dialog.Button onPress={() => {
+                        this.setState({
+                            dialog: false
+                        })
+                    }} label="Cancel" />
+
+                </Dialog.Container>
+
+                <SnackBar visible={this.state.snackbar} textMessage={this.state.snackbarmsg} backgroundColor={this.state.snackbarstatus} actionHandler={() => { this.setState({ snackbar: false }) }} actionText="Hide" />
+            </View>
+        )
+    }
 }
 const styles = StyleSheet.create({
 

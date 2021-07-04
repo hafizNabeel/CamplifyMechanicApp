@@ -12,7 +12,7 @@ import { createAppContainer } from "react-navigation";
 import { createDrawerNavigator } from "react-navigation-drawer";
 import { createStackNavigator } from "react-navigation-stack";
 import { Ionicons } from "@expo/vector-icons";
-
+import SnackBar from 'react-native-snackbar-component'
 
 import Stepone from "./CheckList/StepOne";
 import StepTwo from "./CheckList/StepTwo";
@@ -26,9 +26,8 @@ import Logout from "../Registration/Logout";
 import { Icon } from 'react-native-elements'
 import UserAvatar from 'react-native-user-avatar';
 import JobRequests from "./jobrequests";
-import Notifications from "./notifications";
 import JobSummary from "./jobsummary";
-
+import Incident from "./incidents";
 const Header = ({ name, openDrawer }) => (
   <View style={styles.header}>
     <TouchableOpacity onPress={() => openDrawer()}>
@@ -57,7 +56,7 @@ const Home = ({ navigation }, props) => {
         shadowColor: 'grey',
         shadowOpacity: 0.5,
       }}>
-        <Text style={{ padding: 20, flexWrap: 'wrap', fontSize: 17,flex:1 }}>
+        <Text style={{ padding: 20, flexWrap: 'wrap', fontSize: 17, flex: 1 }}>
           Camplify is proud to be Australia’s largest and fastest-growing campervan, motorhome and caravan sharing community. We’re safely connecting holidaymakers with thousands of unique neighbourhood vans that are available to hire for their next outdoor adventure. Explore some of our featured campervans, motorhomes and caravans available for hire.
         </Text>
       </View>
@@ -103,13 +102,17 @@ class Sidebar extends React.Component {
         name: "JobRequests",
         icon: "ios-person-add-outline"
       },
-      {
-        name: "Notifications",
-        icon: "ios-notifications-outline"
-      },
+      // {
+      //   name: "Notifications",
+      //   icon: "ios-notifications-outline"
+      // },
       {
         name: "JobSummary",
         icon: "ios-logo-buffer"
+      },
+      {
+        name: "Incidents",
+        icon: "ios-list",
       },
       {
         name: "LogOut",
@@ -146,7 +149,7 @@ const Drawer = createDrawerNavigator(
     Home: { screen: Home },
     Checklist: { screen: StepOne },
     JobRequests: { screen: JobRequests },
-    Notifications: { screen: Notifications },
+    // Notifications: { screen: Notifications },
     JobSummary: { screen: JobSummary },
     StepTwo: { screen: StepTwo },
     StepThree: { screen: StepThree },
@@ -154,12 +157,13 @@ const Drawer = createDrawerNavigator(
     StepFive: { screen: StepFive },
     StepSix: { screen: StepSix },
     FinalMessage: { screen: FinalMessage },
+    Incidents: { screen: Incident },
     LogOut: { screen: Logout },
   },
   {
     initialRouteName: "Home",
     unmountInactiveRoutes: true,
-    initialRouteParams: { switchmodule: "quzal" },
+    initialRouteParams: { switchmodule: "" },
     headerMode: "none",
     contentComponent: (props) => <Sidebar {...props} />,
   }
@@ -186,7 +190,11 @@ export default class HomePage extends React.Component {
   }
   // ----- Passing Parent Data to Childs via ScreenProps --------
   render() {
-    return <AppContainer screenProps={{ switchmodule: this.props.switchmodule, name: this.props.name, email: this.props.email }} />;
+    return <AppContainer screenProps={{ switchmodule: this.props.switchmodule, name: this.props.name, email: this.props.email, userId: this.props.userId }} />;
+    // <View>
+    //   <SnackBar visible={true} textMessage="Hi there" backgroundColor="green" actionHandler={() => { this.setState({ snackbar: false }) }} actionText="Hide" />
+    // </View>
+
   }
 }
 

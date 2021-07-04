@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { StyleSheet, Text, View, TouchableHighlight } from "react-native";
+import { StyleSheet, Text, View, TouchableHighlight,Image } from "react-native";
 import { Dimensions, Button, TouchableOpacity } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -45,7 +45,7 @@ this.setState({
 })
 }
 // Handling Screen Switching for Login , Signup
-  switchscreen(screen,name,email) {
+  switchscreen(screen,name,email,userId) {
     if (screen == "login") {
       this.setState({
         islogin: true,
@@ -65,11 +65,11 @@ this.setState({
         },
         () => {
           // Parent App.js
-          this.props.switchmodule("homepage",name,email);
+          this.props.switchmodule("homepage",name,email,userId);
         }
       );
     } else if (screen=="mechanichomepage"){
-      this.props.switchmodule("mechanichomepage",name,email);
+      this.props.switchmodule("mechanichomepage",name,email,userId);
     }
   }
 
@@ -81,7 +81,20 @@ this.setState({
         ) : this.state.isSignup ? (
           <Signup switchscreen={this.switchscreen} snackbar={this.handleSnackBar} />
         ) : (
-          <View style={{ padding: 20, marginTop: "20%", width: "100%" }}>
+          <View style={{ padding: 20, marginTop: "10%", width: "100%" }}>
+             <Image
+        source={require("../../assets/camplify.png")}
+        style={{ width: "40%", height: "30%" ,alignSelf:'center',marginBottom:"2%",
+        borderColor: "#003171",
+          borderWidth: 2,
+          borderRadius:5
+      
+      }}
+        resizeMode="stretch"
+      />
+      <Text  style={{alignSelf:'center',marginBottom:"20%",fontSize:19,color:"#003171",fontWeight:'100',fontStyle:'italic',  shadowOffset: { width: 5, height: 5, },
+                shadowColor: 'grey',
+                shadowOpacity: 0.4,}}>camplify</Text>
             <TouchableOpacity
               style={styles.Btns}
               onPress={() => {

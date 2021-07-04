@@ -39,11 +39,13 @@ export default function StepFour({ navigation }) {
           placeholder="For example there is a tear on the drivers side seat near head rest. "
           value={text}
           onChangeText={(prev) => setText(prev)}
+          blurOnSubmit={true}
         />
       </View>
 
       <View style={styles.bottomView}>
         <TouchableOpacity
+        disabled={true}
           style={{
             flex: 1,
             alignItems: "center",
@@ -53,7 +55,7 @@ export default function StepFour({ navigation }) {
         >
           <View>
             <Text style={{ marginRight: 15, fontSize: 20, color: "white" }}>
-              <Icon name="chevron-left" size={15} color="white" /> Prev
+              {/* <Icon name="chevron-left" size={15} color="white" /> Prev */}
             </Text>
           </View>
         </TouchableOpacity>

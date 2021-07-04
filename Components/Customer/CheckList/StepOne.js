@@ -54,7 +54,7 @@ export default function StepOne({ navigation }, props) {
           }}
         >
           <View>
-            <Text style={{ color: "#04609F" }}>Prev</Text>
+            {/* <Text style={{ color: "#04609F" }}>Prev</Text> */}
           </View>
         </TouchableOpacity>
         <TouchableOpacity

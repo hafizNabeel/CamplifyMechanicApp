@@ -1,5 +1,5 @@
 import React from 'react'
-import { View, Text, useWindowDimensions } from 'react-native'
+import { View, Text, useWindowDimensions,Image } from 'react-native'
 import { TabView, SceneMap ,TabBar} from 'react-native-tab-view';
 import MechanicJobsSummary from './mechanicjobsSummary';
 import AvailableJobs from './availablejobs';
@@ -24,9 +24,9 @@ console.log("mechaaaaaaaa",props.userId);
       const renderScene = ({ route }) => {
         switch (route.key) {
           case 'first':
-             return <AvailableJobs></AvailableJobs>;
+             return <AvailableJobs userId={props.userId}/>;
           case 'second':
-            return <MechanicJobsSummary/>;
+            return <MechanicJobsSummary userId={props.userId}/>;
             case 'third':
                 return <MechanicProfile name={props.name} email={props.email} logout={handlelogout}></MechanicProfile>
           default:
@@ -39,7 +39,7 @@ console.log("mechaaaaaaaa",props.userId);
         <TabBar
           {...props}
           indicatorStyle={{ backgroundColor: 'gold' }}
-          style={{marginTop:50,backgroundColor:'#003171'}}
+          style={{backgroundColor:'#003171'}}
           inactiveColor="white"
           activeColor="gold"
           onTabPress={({ route, preventDefault }) => {
@@ -59,6 +59,11 @@ console.log("mechaaaaaaaa",props.userId);
 
     return (
       
+<View style={{flex:1}}>
+<View style={{flexDirection:'row',justifyContent:'space-around',alignItems:'center',alignSelf:'center',backgroundColor:'#003171',height:"8%",width:"100%"}}>
+  {/* <Text style={{fontSize:20,fontWeight:'500',color:'white',alignSelf:'flex-end',}}>Camplify</Text> */}
+                <Text style={{fontSize:15,fontWeight:'200',color:'white',alignSelf:'flex-end'}}>Mechanic Dashboard</Text>
+</View>
 
           <TabView
               navigationState={{ index, routes }}
@@ -67,7 +72,7 @@ console.log("mechaaaaaaaa",props.userId);
               initialLayout={{ width: layout.width }}
               renderTabBar={renderTabBar}
           />
-      
+      </View>
         
     )
 

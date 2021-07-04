@@ -114,7 +114,7 @@ let temppic=[];
 
     axios({
       method: "post",
-      url: "http://13.236.175.70:443/api/Checklist/Insert",
+      url: "http://adeelahmad01-001-site1.etempurl.com/api/Checklist/Insert",
       headers: {
         Accept: "application/json, text/plain",
         "Content-Type": "application/json;charset=UTF-8",
@@ -173,7 +173,7 @@ let temppic=[];
         <View style={{height:100}}>
           <ScrollView horizontal={true}>
       
-          <View style={{flexDirection:'row',backgroundColor:'red',height:100}}>
+          <View style={{flexDirection:'row',height:100}}>
             { picture != ""  & picture!= undefined ? picture.map((element, index) => {
               console.log("y pictures", element);
               return (
@@ -181,6 +181,7 @@ let temppic=[];
                   key={index}
                   source={{ uri: element.uri }}
                   style={{ width: 100, height: 100 }}
+                  resizeMode='stretch'
                 />
               );
             }):null}
@@ -188,15 +189,16 @@ let temppic=[];
        
         </ScrollView>
         </View>
-        <View style={{ marginTop: "10%",justifyContent:'flex-end',alignItems:'flex-end',shadowOffset:{  width: 3,  height: 3,  },
+        {/* <View style={{ marginTop: "10%",justifyContent:'flex-end',alignItems:'flex-end',shadowOffset:{  width: 3,  height: 3,  },
             shadowColor: 'grey',
             shadowOpacity: 0.3, }}>
           <Button color="#003171" onPress={SubmitRequest} title="Submit" />
-        </View>
+        </View> */}
       </View>
       <SnackBar  visible={snackbar} textMessage={snackbarMsg} backgroundColor={snackbarStatus} actionHandler={()=>{setSnackbar(false)}} actionText="Hide"/>
       <View style={styles.bottomView}>
         <TouchableOpacity
+        disabled={true}
           style={{
             flex: 1,
             alignItems: "center",
@@ -206,7 +208,7 @@ let temppic=[];
         >
           <View>
             <Text style={{ marginRight: 15, fontSize: 20, color: "white",marginTop:5 }}>
-              <Icon name="chevron-left" size={15} color="white" /> Prev
+              {/* <Icon name="chevron-left" size={15} color="white" /> Prev */}
             </Text>
           </View>
         </TouchableOpacity>
@@ -216,8 +218,12 @@ let temppic=[];
             alignItems: "center",
             justifyContent: "center"
           }}
-          onPress={() => navigation.navigate("FinalMessage")}
-        ></TouchableOpacity>
+          onPress={() => SubmitRequest()}
+        >
+          <Text style={{ marginRight: 15, fontSize: 20, color: "white",marginTop:2 }}>
+          Submit  <Icon name="send" marginBottom={3} size={14} color="white" /> 
+            </Text>
+        </TouchableOpacity>
       </View>
     <Spinner
             visible={spinner}
@@ -237,9 +243,6 @@ const styles = StyleSheet.create({
     paddingTop: 40,
     alignItems: "center",
     flex: 1,
-    justifyContent:'center',
-    alignContent:'center',
-    alignItems:'center'
   },
   bottomView: {
     width: "100%",
